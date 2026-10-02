@@ -1,6 +1,6 @@
 # Histórico de funcionalidades
 
-Versão **0.1.1**, beta para piloto. Atualizado em 01/10/2026, America/Fortaleza. “Implementado” significa código presente e verificações descritas; não implica auditoria independente ou validação com credenciais Meta reais.
+Versão **0.1.1**, beta para piloto. Atualizado em 02/10/2026, America/Fortaleza. “Implementado” significa código presente e verificações descritas; não implica auditoria independente ou validação com credenciais Meta reais.
 
 | Funcionalidade | Estado | O que funciona / limitação |
 |---|---|---|

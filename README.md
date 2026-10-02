@@ -78,7 +78,7 @@ packages/contracts/ DTOs, validação e contratos de API/eventos
 packages/database/  Prisma, migrações e seeds sintéticos futuros
 packages/config/    Configuração validada e limites
 infra/              Implantação e operação futuras
-scripts/            Verificações da fundação documental
+scripts/            Configuração, deploy, bootstrap e verificações
 tests/             Plano de testes e fixtures sintéticas
 docs/              Especificação e decisões
 ```
@@ -96,7 +96,7 @@ npm run build
 npm start
 ```
 
-Docker Compose também está disponível. Banco e arquivos são persistentes; não há deploy automático no seu homelab.
+Para Docker no homelab, execute `python3 scripts/configure.py` e `bash scripts/deploy.sh --cloudflare` conforme o runbook. A CI verifica a instalação em containers. Banco e arquivos são persistentes; deploy no seu homelab é executado por você no servidor.
 
 ## Verificação
 

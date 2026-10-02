@@ -14,7 +14,11 @@ try {
   const email = input.BOOTSTRAP_EMAIL.toLowerCase();
   const existing = await db.user.findUnique({ where: { email }, include: { company: true } });
   if (existing) {
-    if (existing.role !== 'owner' || existing.company.name !== input.BOOTSTRAP_COMPANY)
+    if (
+      !existing.active ||
+      existing.role !== 'owner' ||
+      existing.company.name !== input.BOOTSTRAP_COMPANY
+    )
       throw new Error('E-mail já pertence a outra instalação; conta preservada.');
     console.log('Proprietário já existe; credenciais preservadas.');
   } else {
