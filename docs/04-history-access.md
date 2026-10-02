@@ -1,5 +1,7 @@
 # Transferência e visibilidade
 
+> Especificação do produto completo. O estado de implementação da beta está em [Status das funcionalidades](15-feature-status.md); requisitos deste documento podem estar pendentes.
+
 ## Princípio
 
 A conversa real e a janela operacional do WhatsApp permanecem. Uma nova sessão/atribuição modifica a perspectiva interna do atendente. Não apaga mensagens e não reinicia a janela de 24 horas.
@@ -37,3 +39,7 @@ Conhecer um ID não permite acesso. Não emitir URLs públicas permanentes. Link
 ## Aceite
 
 Atendente novo não recebe nenhum conteúdo anterior em modo futuras; supervisor autorizado mantém acesso. Testar duas empresas, URLs diretas, reconexão, download parcial, exportação e uma mensagem em trânsito no instante da transferência.
+
+## Nota da implementação beta
+
+Mensagens recebidas depois do recorte “futuras” usam também o timestamp original da Meta para esconder conteúdo de segundos anteriores à transferência. A precisão do provedor é de segundos: dentro do mesmo segundo, a sequência local de ingresso define a fronteira. Não há importação de histórico nesta beta. O recorte completo e os modos de seleção explícita seguem a sequência selecionada.

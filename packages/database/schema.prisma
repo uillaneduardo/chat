@@ -1,0 +1,236 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Company {
+  id            String         @id @default(uuid()) @db.VarChar(36)
+  name          String         @db.VarChar(100)
+  maxFileBytes  BigInt         @default(2147483648)
+  quotaBytes    BigInt         @default(10737418240)
+  usedBytes     BigInt         @default(0)
+  reservedBytes BigInt         @default(0)
+  budget        Decimal?       @db.Decimal(20, 8)
+  users         User[]
+  contacts      Contact[]
+  accounts      Account[]
+  conversations Conversation[]
+  uploads       Upload[]
+  tariffs       Tariff[]
+  audit         Audit[]
+}
+
+model User {
+  id           String    @id @default(uuid()) @db.VarChar(36)
+  companyId    String    @db.VarChar(36)
+  company      Company   @relation(fields: [companyId], references: [id])
+  name         String    @db.VarChar(100)
+  email        String    @unique @db.VarChar(190)
+  passwordHash String    @db.VarChar(255)
+  role         String    @db.VarChar(20)
+  active       Boolean   @default(true)
+  sessions     Session[]
+
+  @@unique([companyId, id])
+}
+
+model Session {
+  id        String   @id @db.VarChar(64)
+  userId    String   @db.VarChar(36)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  csrf      String   @db.VarChar(64)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([expiresAt])
+}
+
+model Account {
+  id                 String         @id @default(uuid()) @db.VarChar(36)
+  companyId          String         @db.VarChar(36)
+  company            Company        @relation(fields: [companyId], references: [id])
+  name               String         @db.VarChar(100)
+  mode               String         @default("demo") @db.VarChar(20)
+  phoneNumberId      String?        @unique @db.VarChar(80)
+  wabaId             String?        @db.VarChar(80)
+  graphVersion       String?        @db.VarChar(20)
+  tokenEncrypted     String?        @db.Text
+  appSecretEncrypted String?        @db.Text
+  verifyHash         String?        @db.VarChar(64)
+  lastWebhook        DateTime?
+  conversations      Conversation[]
+  webhookEvents      WebhookEvent[]
+
+  @@unique([companyId, id])
+}
+
+model Contact {
+  id            String         @id @default(uuid()) @db.VarChar(36)
+  companyId     String         @db.VarChar(36)
+  company       Company        @relation(fields: [companyId], references: [id])
+  name          String         @db.VarChar(100)
+  waId          String         @db.VarChar(32)
+  conversations Conversation[]
+
+  @@unique([companyId, waId])
+  @@unique([companyId, id])
+}
+
+model Conversation {
+  id               String     @id @default(uuid()) @db.VarChar(36)
+  companyId        String     @db.VarChar(36)
+  company          Company    @relation(fields: [companyId], references: [id])
+  accountId        String     @db.VarChar(36)
+  account          Account    @relation(fields: [companyId, accountId], references: [companyId, id])
+  contactId        String     @db.VarChar(36)
+  contact          Contact    @relation(fields: [companyId, contactId], references: [companyId, id])
+  assignedUserId   String?    @db.VarChar(36)
+  status           String     @default("open") @db.VarChar(20)
+  contextStartedAt DateTime?
+  visibleFrom      Int        @default(1)
+  notesFrom        Int        @default(1)
+  lastSequence     Int        @default(0)
+  version          Int        @default(1)
+  lastCustomerAt   DateTime?
+  updatedAt        DateTime   @updatedAt
+  messages         Message[]
+  transfers        Transfer[]
+
+  @@unique([companyId, accountId, contactId])
+  @@unique([companyId, id])
+  @@index([companyId, assignedUserId, status])
+}
+
+model Transfer {
+  id             String       @id @default(uuid()) @db.VarChar(36)
+  companyId      String       @db.VarChar(36)
+  conversationId String       @db.VarChar(36)
+  conversation   Conversation @relation(fields: [companyId, conversationId], references: [companyId, id])
+  actorId        String       @db.VarChar(36)
+  fromUserId     String?      @db.VarChar(36)
+  toUserId       String       @db.VarChar(36)
+  mode           String       @db.VarChar(20)
+  boundary       Int
+  summary        String?      @db.Text
+  reason         String?      @db.VarChar(500)
+  createdAt      DateTime     @default(now())
+}
+
+model Message {
+  id             String       @id @default(uuid()) @db.VarChar(36)
+  companyId      String       @db.VarChar(36)
+  conversationId String       @db.VarChar(36)
+  conversation   Conversation @relation(fields: [companyId, conversationId], references: [companyId, id])
+  originAt       DateTime?
+  sequence       Int
+  direction      String       @db.VarChar(20)
+  type           String       @default("text") @db.VarChar(30)
+  body           String       @db.Text
+  authorId       String?      @db.VarChar(36)
+  providerId     String?      @unique @db.VarChar(190)
+  status         String       @db.VarChar(20)
+  idempotencyKey String?      @db.VarChar(120)
+  requestHash    String?      @db.VarChar(64)
+  fileId         String?      @db.VarChar(36)
+  file           Upload?      @relation(fields: [companyId, fileId], references: [companyId, id])
+  cost           Decimal?     @db.Decimal(20, 8)
+  currency       String?      @db.VarChar(3)
+  category       String?      @db.VarChar(30)
+  billable       Boolean?
+  payload        String?      @db.Text
+  errorCode      String?      @db.VarChar(40)
+  createdAt      DateTime     @default(now())
+
+  @@unique([companyId, id])
+  @@unique([conversationId, sequence])
+  @@unique([conversationId, idempotencyKey])
+  @@index([companyId, status])
+}
+
+model Upload {
+  id        String    @id @default(uuid()) @db.VarChar(36)
+  companyId String    @db.VarChar(36)
+  company   Company   @relation(fields: [companyId], references: [id])
+  ownerId   String    @db.VarChar(36)
+  name      String    @db.VarChar(200)
+  mime      String    @db.VarChar(100)
+  size      BigInt
+  offset    BigInt    @default(0)
+  state     String    @default("pending") @db.VarChar(20)
+  sha256    String?   @db.VarChar(64)
+  expiresAt DateTime
+  createdAt DateTime  @default(now())
+  messages  Message[]
+  shares    Share[]
+
+  @@unique([companyId, id])
+}
+
+model Share {
+  id        String   @id @default(uuid()) @db.VarChar(36)
+  companyId String   @db.VarChar(36)
+  fileId    String   @db.VarChar(36)
+  file      Upload   @relation(fields: [companyId, fileId], references: [companyId, id])
+  tokenHash String   @unique @db.VarChar(64)
+  expiresAt DateTime
+  revoked   Boolean  @default(false)
+}
+
+model Tariff {
+  id        String   @id @default(uuid()) @db.VarChar(36)
+  companyId String   @db.VarChar(36)
+  company   Company  @relation(fields: [companyId], references: [id])
+  market    String   @db.VarChar(2)
+  category  String   @db.VarChar(30)
+  currency  String   @db.VarChar(3)
+  price     Decimal  @db.Decimal(20, 8)
+  validFrom DateTime
+  source    String   @db.VarChar(500)
+  createdAt DateTime @default(now())
+
+  @@index([companyId, market, category, validFrom])
+}
+
+model WebhookEvent {
+  id         String   @id @default(uuid()) @db.VarChar(36)
+  accountId  String   @db.VarChar(36)
+  account    Account  @relation(fields: [accountId], references: [id])
+  digest     String   @db.VarChar(64)
+  receivedAt DateTime @default(now())
+
+  @@unique([accountId, digest])
+}
+
+model Audit {
+  id         String   @id @default(uuid()) @db.VarChar(36)
+  companyId  String   @db.VarChar(36)
+  company    Company  @relation(fields: [companyId], references: [id])
+  actorId    String?  @db.VarChar(36)
+  action     String   @db.VarChar(60)
+  resourceId String?  @db.VarChar(80)
+  details    String   @default("{}") @db.Text
+  createdAt  DateTime @default(now())
+
+  @@index([companyId, createdAt])
+}
+
+model ProviderStatus {
+  id            String   @id @default(uuid()) @db.VarChar(36)
+  accountId     String   @db.VarChar(36)
+  providerId    String   @db.VarChar(190)
+  status        String   @db.VarChar(20)
+  occurredAt    DateTime
+  digest        String   @unique @db.VarChar(64)
+  category      String?  @db.VarChar(30)
+  billable      Boolean?
+  errorCode     String?  @db.VarChar(40)
+  nextAttemptAt DateTime @default(now())
+  applied       Boolean  @default(false)
+  receivedAt    DateTime @default(now())
+
+  @@index([applied, receivedAt])
+}

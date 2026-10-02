@@ -1,5 +1,7 @@
 # Modelo de domínio proposto
 
+> Especificação do produto completo. O estado de implementação da beta está em [Status das funcionalidades](15-feature-status.md); requisitos deste documento podem estar pendentes.
+
 Este documento é contrato conceitual; não é schema Prisma nem migração pronta. Implementação deverá materializar relações, índices e testes antes de armazenar dados reais.
 
 | Entidade | Campos e relações essenciais |

@@ -1,5 +1,7 @@
 # Consumo, preços e conciliação
 
+> Especificação do produto completo. O estado de implementação da beta está em [Status das funcionalidades](15-feature-status.md); requisitos deste documento podem estar pendentes.
+
 ## Estados financeiros
 
 | Estado | Significado |

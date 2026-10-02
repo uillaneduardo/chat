@@ -1,5 +1,7 @@
 # Segurança e auditoria
 
+> Especificação do produto completo. O estado de implementação da beta está em [Status das funcionalidades](15-feature-status.md); requisitos deste documento podem estar pendentes.
+
 Baseline proposta: OWASP ASVS nível 2 e princípios de OWASP API Security; não é certificação nem atestado de conformidade. Requisitos ainda devem ser implementados e testados.
 
 ## Ameaças e controles

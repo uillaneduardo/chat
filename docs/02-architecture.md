@@ -1,5 +1,7 @@
 # Arquitetura
 
+> Especificação do produto completo. O estado de implementação da beta está em [Status das funcionalidades](15-feature-status.md); requisitos deste documento podem estar pendentes.
+
 ## Decisão de base
 
 Monólito modular com API e worker separados operacionalmente. Domain não importa React, Fastify ou Prisma. API/worker dependem de domain e adapters. Contracts contém schemas de entrada/saída e eventos sanitizados. Database encapsula transações, filtros por tenant e migrações.

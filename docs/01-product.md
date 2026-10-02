@@ -1,5 +1,7 @@
 # Escopo e jornadas
 
+> Especificação do produto completo. O estado de implementação da beta está em [Status das funcionalidades](15-feature-status.md); requisitos deste documento podem estar pendentes.
+
 ## Objetivo
 
 Operar atendimento humano em um número WhatsApp compartilhado, começar no homelab e preservar uma base multiempresa para evolução SaaS. Este projeto é separado do painel de infraestrutura WappHub; eventual integração futura não justifica compartilhar credenciais ou bancos sem contrato.

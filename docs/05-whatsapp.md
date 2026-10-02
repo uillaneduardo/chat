@@ -1,5 +1,7 @@
 # Integração oficial WhatsApp
 
+> Especificação do produto completo. O estado de implementação da beta está em [Status das funcionalidades](15-feature-status.md); requisitos deste documento podem estar pendentes.
+
 ## Conta e credenciais
 
 Cloud API direta da Meta, sem dependência obrigatória de BSP. Gerenciar WABA e números como recursos diferentes. Cadastrar referências a token, app secret e verify token; cifrar segredos com chave externa ao banco, controle de acesso e rotação. UI mostra presença/última rotação, nunca valor salvo.

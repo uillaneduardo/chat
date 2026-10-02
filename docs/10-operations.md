@@ -1,5 +1,7 @@
 # Operação no homelab
 
+> Especificação do produto completo. O estado de implementação da beta está em [Status das funcionalidades](15-feature-status.md); requisitos deste documento podem estar pendentes.
+
 Este é um runbook de requisitos; Dockerfiles/Compose ainda não existem. Não alterar os serviços atuais do homelab nesta fase.
 
 ## Topologia alvo

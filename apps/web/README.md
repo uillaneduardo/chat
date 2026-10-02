@@ -1,5 +1,5 @@
 # apps/web
 
-React/Vite: inbox, contatos, transferência, gestão WhatsApp, consumo e configurações. Nenhum dado oculto deve chegar ao browser. Implementação em M1–M5.
+Parte da beta 0.1.0. Código e configuração executáveis estão neste diretório quando aplicável.
 
-Este diretório é reservado para implementação; não contém aplicativo executável.
+Consulte [README principal](../../README.md), a matriz de funcionalidades e o runbook de instalação. Não confunda requisitos do MVP integral com recursos entregues na beta.

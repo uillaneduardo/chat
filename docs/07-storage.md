@@ -1,5 +1,7 @@
 # Arquivos grandes e armazenamento
 
+> Especificação do produto completo. O estado de implementação da beta está em [Status das funcionalidades](15-feature-status.md); requisitos deste documento podem estar pendentes.
+
 ## Storage local
 
 Arquivos fora da raiz pública em `/mnt/cloud-data/wapphub-chat/media`; temporários em diretório separado no mesmo filesystem quando necessário para rename atômico. Nome físico aleatório, company segregada, nome original somente em metadados. Banco guarda referências, não BLOB de mídia.

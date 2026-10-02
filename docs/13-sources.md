@@ -1,5 +1,7 @@
 # Fontes oficiais e validações pendentes
 
+> Especificação do produto completo. O estado de implementação da beta está em [Status das funcionalidades](15-feature-status.md); requisitos deste documento podem estar pendentes.
+
 Consulta inicial: **01/10/2026 (America/Fortaleza)**. Revalidar em cada implementação/release que dependa de regra externa. Links podem migrar; atualizar sem usar artigo comercial como autoridade de preço.
 
 | Fonte | Uso |

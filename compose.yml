@@ -1,0 +1,54 @@
+services:
+  db:
+    image: mariadb:11.4
+    environment:
+      MARIADB_DATABASE: chat
+      MARIADB_USER: chat
+      MARIADB_PASSWORD: ${MARIADB_PASSWORD:?Preencha MARIADB_PASSWORD}
+      MARIADB_ROOT_PASSWORD: ${MARIADB_ROOT_PASSWORD:?Preencha MARIADB_ROOT_PASSWORD}
+    volumes:
+      - database:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+    restart: unless-stopped
+    mem_limit: 512m
+  app:
+    build: .
+    environment:
+      DATABASE_URL: mysql://chat:${MARIADB_PASSWORD}@db:3306/chat
+      PUBLIC_BASE_URL: ${PUBLIC_BASE_URL:-http://localhost:8300}
+      NODE_ENV: ${NODE_ENV:-development}
+      ENCRYPTION_KEY: ${ENCRYPTION_KEY:?Preencha ENCRYPTION_KEY}
+      ENABLE_DEMO: ${ENABLE_DEMO:-true}
+      ALLOW_UNSCANNED_FILES: ${ALLOW_UNSCANNED_FILES:-false}
+      CLAMSCAN_PATH: ${CLAMSCAN_PATH:-}
+      BOOTSTRAP_COMPANY: ${BOOTSTRAP_COMPANY:-}
+      BOOTSTRAP_NAME: ${BOOTSTRAP_NAME:-}
+      BOOTSTRAP_EMAIL: ${BOOTSTRAP_EMAIL:-}
+      BOOTSTRAP_PASSWORD: ${BOOTSTRAP_PASSWORD:-}
+      HOST: 0.0.0.0
+      API_PORT: 3000
+      STORAGE_ROOT: /data/media
+    ports:
+      - "127.0.0.1:8300:3000"
+    volumes:
+      - media:/data/media
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3000/api/health').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"]
+      interval: 20s
+      timeout: 5s
+      retries: 3
+    init: true
+    restart: unless-stopped
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]
+    mem_limit: 768m
+volumes:
+  database:
+  media:

@@ -13,7 +13,7 @@ for name in REQUIRED:
     if not (ROOT / name).is_file():
         errors.append(f'Missing required file: {name}')
 files = [p for p in ROOT.rglob('*') if p.is_file() and '.git' not in p.parts
-         and '__pycache__' not in p.parts]
+         and not any(part in {'__pycache__','node_modules','dist','data','coverage'} for part in p.parts) and p.name != '.env']
 for path in files:
     name = str(path.relative_to(ROOT))
     if path.suffix not in {'.md', '.py', '.yml', '.json'} and not path.name.startswith('.'):
@@ -51,7 +51,7 @@ for line in (ROOT / '.env.example').read_text().splitlines():
     if key in seen:
         errors.append(f'Duplicate env key: {key}')
     seen.add(key)
-    if any(word in key for word in ('SECRET', 'TOKEN', 'KEY', 'DATABASE_URL', 'REDIS_URL')) and value:
+    if any(word in key for word in ('SECRET', 'TOKEN', 'KEY', 'PASSWORD', 'DATABASE_URL', 'REDIS_URL')) and value:
         errors.append(f'Sensitive env example must be empty: {key}')
 if errors:
     raise SystemExit('\n'.join(errors))

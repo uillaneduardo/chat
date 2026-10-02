@@ -20,3 +20,5 @@ media/
 __pycache__/
 *.pyc
 .DS_Store
+
+!packages/database/migrations/**/migration.sql

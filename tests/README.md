@@ -1,5 +1,5 @@
 # tests
 
-Fixtures sintéticas e testes unitários/integração/E2E futuros. Plano em docs/11-quality.md; não há testes funcionais de app nesta etapa.
+Parte da beta 0.1.0. Código e configuração executáveis estão neste diretório quando aplicável.
 
-Este diretório é reservado para implementação; não contém aplicativo executável.
+Consulte [README principal](../README.md), a matriz de funcionalidades e o runbook de instalação. Não confunda requisitos do MVP integral com recursos entregues na beta.

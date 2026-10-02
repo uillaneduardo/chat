@@ -1,6 +1,6 @@
 # Política de segurança
 
-Este repositório está em fundação documental, sem versão de produção suportada. Controles descritos são requisitos, não garantias implementadas.
+A versão 0.1.0 é uma beta para piloto, sem garantia de produção ou revisão independente. Controles implementados e pendentes estão em docs/15-feature-status.md. Configure scanner e valide backup/restore antes de lidar com arquivos de clientes.
 
 Não publique vulnerabilidades com dados pessoais, tokens ou payloads reais em issues. Use reporte privado de vulnerabilidade do GitHub se o mantenedor habilitar esse recurso; caso indisponível, solicite um canal privado ao mantenedor sem divulgar detalhes exploráveis publicamente. Nenhum canal privado ou prazo de resposta está garantido nesta etapa.
 

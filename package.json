@@ -1,0 +1,53 @@
+{
+  "name": "wapphub-chat",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22 <25"
+  },
+  "scripts": {
+    "dev": "concurrently -k \"npm run dev:api\" \"npm run dev:web\"",
+    "dev:api": "node --import tsx --watch apps/api/src/start.ts",
+    "dev:web": "vite --host 127.0.0.1",
+    "build": "tsc --noEmit && vite build",
+    "start": "node --import tsx apps/api/src/start.ts",
+    "db:generate": "prisma generate --schema packages/database/schema.prisma",
+    "db:migrate": "prisma migrate deploy --schema packages/database/schema.prisma",
+    "bootstrap": "node --import tsx scripts/bootstrap.ts",
+    "test": "node --import tsx --test tests/*.test.ts",
+    "check": "python3 scripts/check_repository.py && npm run build && npm test",
+    "test:large-upload": "node --import tsx tests/large-upload.ts",
+    "format": "prettier --write \"apps/**/*.{ts,tsx,css,html}\" \"packages/**/*.ts\" \"scripts/*.ts\" \"tests/*.ts\" vite.config.ts",
+    "format:check": "prettier --check \"apps/**/*.{ts,tsx,css,html}\" \"packages/**/*.ts\" \"scripts/*.ts\" \"tests/*.ts\" vite.config.ts",
+    "test:browser": "node --import tsx tests/browser-smoke.ts"
+  },
+  "dependencies": {
+    "@fastify/cookie": "11.1.2",
+    "@fastify/rate-limit": "10.3.0",
+    "@fastify/static": "10.1.5",
+    "@prisma/client": "6.19.0",
+    "dotenv": "17.4.2",
+    "fastify": "5.12.5",
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
+    "zod": "4.6.5"
+  },
+  "devDependencies": {
+    "@types/node": "24.19.1",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
+    "@vitejs/plugin-react": "5.2.0",
+    "concurrently": "9.2.4",
+    "playwright": "1.62.1",
+    "prettier": "3.9.9",
+    "prisma": "6.19.0",
+    "tsx": "4.23.15",
+    "typescript": "5.9.3",
+    "vite": "7.3.6"
+  },
+  "overrides": {
+    "deepmerge-ts": "8.0.1",
+    "effect": "3.20.0"
+  }
+}

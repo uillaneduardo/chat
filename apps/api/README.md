@@ -1,5 +1,5 @@
 # apps/api
 
-Fastify: sessão/tenant, autorização, rotas e ingresso de webhook validado. Persistência durável antes de ACK. Implementação a partir de M1.
+Parte da beta 0.1.0. Código e configuração executáveis estão neste diretório quando aplicável.
 
-Este diretório é reservado para implementação; não contém aplicativo executável.
+Consulte [README principal](../../README.md), a matriz de funcionalidades e o runbook de instalação. Não confunda requisitos do MVP integral com recursos entregues na beta.

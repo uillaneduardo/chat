@@ -1,5 +1,7 @@
 # Contrato de API proposto
 
+> Especificação do produto completo. O estado de implementação da beta está em [Status das funcionalidades](15-feature-status.md); requisitos deste documento podem estar pendentes.
+
 Rotas são planejamento, não endpoints disponíveis. Implementação publicará OpenAPI e schemas compartilhados em packages/contracts.
 
 ## Convenções

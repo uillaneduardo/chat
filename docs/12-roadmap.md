@@ -1,18 +1,24 @@
-# Roadmap
+# Roadmap e progresso
 
-| Marco | Entrega | Critério de conclusão |
+| Marco | Situação na beta 0.1.0 | Restante |
 |---|---|---|
-| M0 — atual | Documentação, módulos, padrões e verificador | Links/configurações válidos e commit publicado |
-| M1 | Workspace executável, lockfile, login/tenant, migrations e CI | App inicia localmente; isolamento e sessões testados |
-| M2 | Contas e webhook durável, outbox e mensagens texto | HMAC, dedup, status fora de ordem e uncertain verificados |
-| M3 | Inbox, filas, sessões e transferência | Policy testada em todas as superfícies, inclusive realtime |
-| M4 | Mídia local, upload retomável, quotas e shares | Carga 2 GiB, recovery, quarentena e ACL aprovados |
-| M5 | Tarifas, consumo, reservas e conciliação | Sem dupla cobrança; null e evidências corretos |
-| M6 | Deploy staging/homelab, backups e hardening | Restauração testada, carga e revisão de segurança |
-| M7 | Piloto do MVP com conta autorizada | Jornada completa, monitoramento e aceite operacional |
+| M0 — documentação | Concluído | Manutenção contínua |
+| M1 — fundação executável | Parcial avançado | Membership múltiplo, recuperação de senha/MFA e hardening |
+| M2 — WhatsApp texto | Implementado em código, piloto real pendente | Validação com credenciais Meta e diagnóstico avançado |
+| M3 — atendimento | Parcial | Filas/departamentos/tags, sessões formais e realtime socket |
+| M4 — mídia e arquivos | Parcial | Mídia nativa Meta, scanner na imagem, retenção/dedup e recovery completo |
+| M5 — consumo | Parcial | Franquias/faixas, ledger financeiro, reservas de orçamento e conciliação |
+| M6 — operação | Parcial documental | Build Docker no host, restore, carga e revisão independente |
+| M7 — MVP integral | Pendente | Aceite de todos os gates e piloto com conta autorizada |
 
-M2 depende de M1; M3 usa M2; M4 e M5 integram com M3 antes do piloto. Nenhuma funcionalidade está marcada pronta por existir documentação. Não prometer prazo sem dimensionar equipe e conta Meta.
+A beta é utilizável antes da conclusão do MVP integral: login, inbox demo persistida, transferência, arquivos e adapter de texto. Veja [histórico detalhado](15-feature-status.md) e [instalação](14-installation.md).
 
-## Pendências de decisão
+## Próximos incrementos
 
-Licença, autenticação/recuperação, bibliotecas de fila/realtime, tus versus protocolo de chunks, scanner, retenção, moeda real da conta, tarifário/franquias aplicáveis, fonte de conciliação e recursos disponíveis no homelab. Registrar decisões em ADR e congelar versões na implementação.
+1. Instalar no homelab em staging e validar conta Meta autorizada, sem campanhas.
+2. Configurar scanner, implementar mídia Meta e recuperação robusta disco/banco.
+3. Completar filas/tags, sessões, paginação visual e realtime com reautorização.
+4. Motor de pricing oficial, regras de gratuidade/faixas, ledger e conciliação.
+5. MFA/reset, observabilidade, backup/restore e revisão de segurança antes de ampliar uso.
+
+Licença permanece pendente. Toda entrega atualiza CHANGELOG e a matriz; nenhum requisito se torna pronto só por existir documentação.
