@@ -2,7 +2,8 @@
 
 Central de atendimento WhatsApp com múltiplos atendentes, transferência com controle de histórico, gestão da integração oficial e acompanhamento de consumo.
 
-**Repositório oficial:** https://github.com/uillaneduardo/chat  
+**Repositório oficial:** https://github.com/uillaneduardo/chat
+
 **Destino de hospedagem:** `https://chat.wapphub.com.br` no homelab.
 
 > Status: fundação documental e estrutura de desenvolvimento. Não há aplicativo executável, integração ativa, migrações ou controles de segurança implementados nesta versão. Os recursos abaixo são requisitos planejados.
@@ -66,8 +67,8 @@ packages/database/  Prisma, migrações e seeds sintéticos futuros
 packages/config/    Configuração validada e limites
 infra/              Implantação e operação futuras
 scripts/            Verificações da fundação documental
- tests/             Plano de testes e fixtures sintéticas
- docs/              Especificação e decisões
+tests/             Plano de testes e fixtures sintéticas
+docs/              Especificação e decisões
 ```
 
 ## Verificar esta versão
