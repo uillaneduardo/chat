@@ -61,12 +61,17 @@ jobs:
           SETUP_NAME: Owner
           SETUP_EMAIL: owner@example.invalid
           SETUP_PASSWORD: synthetic-ci-password
-        run: python3 scripts/configure.py
+        run: |
+          python3 scripts/configure.py
+          cp .env.bootstrap .env.bootstrap.fixture
       - name: Build and deploy with ingress
         run: |
           docker network create cloudflare_ingress
           bash scripts/deploy.sh --cloudflare
           test ! -f .env.bootstrap
+          mv .env.bootstrap.fixture .env.bootstrap
+          docker compose -f compose.yml -f compose.ingress.yml -f compose.bootstrap.yml run --rm app npm run bootstrap
+          rm .env.bootstrap
           node tests/container-smoke.mjs
       - name: Network isolation and restart
         run: |
