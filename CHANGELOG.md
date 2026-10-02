@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.1.1 — 2026-10-02
+
+- Configuração interativa com segredos aleatórios, arquivos privados e proteção contra sobrescrita.
+- Deploy Compose com migrations explícitas, healthchecks e preservação dos volumes.
+- Bootstrap separado do ambiente permanente e repetível sem redefinir senhas.
+- Cloudflare ingress com alias `wapphub-chat`; MariaDB permanece privado.
+- CI de imagem Docker, instalação, login, frontend, rede compartilhada e reinício.
+- Runbook de instalação/atualização e backup; restore, scanner e piloto Meta real permanecem pendentes.
+
+
 Formato inspirado em Keep a Changelog. SemVer para versões executáveis.
 
 ## Unreleased

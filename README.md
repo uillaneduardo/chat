@@ -6,7 +6,7 @@ Central de atendimento WhatsApp com múltiplos atendentes, transferência com co
 
 **Destino de hospedagem:** `https://chat.wapphub.com.br` no homelab.
 
-> **Versão 0.1.0 — beta utilizável para piloto.** Código executável com atendimento demo persistido, transferência de histórico, arquivos internos e adapter de texto Meta. A integração externa exige configuração e validação com sua conta; o MVP completo continua em desenvolvimento. Veja a [matriz de funcionalidades](docs/15-feature-status.md).
+> **Versão 0.1.1 — beta utilizável para piloto.** Código executável com atendimento demo persistido, transferência de histórico, arquivos internos e adapter de texto Meta. A integração externa exige configuração e validação com sua conta; o MVP completo continua em desenvolvimento. Veja a [matriz de funcionalidades](docs/15-feature-status.md).
 
 ## Funcionalidades da beta
 

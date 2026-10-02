@@ -78,7 +78,7 @@ export async function createApp() {
   });
   app.get('/api/health', async () => {
     await db.$queryRaw`SELECT 1`;
-    return { status: 'ok', version: '0.1.0' };
+    return { status: 'ok', version: '0.1.1' };
   });
   app.post(
     '/api/auth/login',

@@ -23,7 +23,7 @@ const timer = setInterval(async () => {
   }
 }, 2000);
 await app.listen({ port: config.API_PORT, host: config.HOST });
-console.log(`WappHub Chat 0.1.0: port ${config.API_PORT}`);
+console.log(`WappHub Chat 0.1.1: port ${config.API_PORT}`);
 for (const signal of ['SIGTERM', 'SIGINT'] as const)
   process.on(signal, async () => {
     clearInterval(timer);

@@ -1,6 +1,6 @@
 # Roadmap e progresso
 
-| Marco | Situação na beta 0.1.0 | Restante |
+| Marco | Situação na beta 0.1.1 | Restante |
 |---|---|---|
 | M0 — documentação | Concluído | Manutenção contínua |
 | M1 — fundação executável | Parcial avançado | Membership múltiplo, recuperação de senha/MFA e hardening |
@@ -8,7 +8,7 @@
 | M3 — atendimento | Parcial | Filas/departamentos/tags, sessões formais e realtime socket |
 | M4 — mídia e arquivos | Parcial | Mídia nativa Meta, scanner na imagem, retenção/dedup e recovery completo |
 | M5 — consumo | Parcial | Franquias/faixas, ledger financeiro, reservas de orçamento e conciliação |
-| M6 — operação | Parcial documental | Build Docker no host, restore, carga e revisão independente |
+| M6 — operação | Parcial com CI Docker | Validação no host, restore, carga e revisão independente |
 | M7 — MVP integral | Pendente | Aceite de todos os gates e piloto com conta autorizada |
 
 A beta é utilizável antes da conclusão do MVP integral: login, inbox demo persistida, transferência, arquivos e adapter de texto. Veja [histórico detalhado](15-feature-status.md) e [instalação](14-installation.md).

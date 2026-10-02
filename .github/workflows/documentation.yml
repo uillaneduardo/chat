@@ -35,7 +35,46 @@ jobs:
       - run: npm run db:generate
       - run: npm run db:migrate
       - run: python3 scripts/check_repository.py
+      - run: python3 -m unittest discover -s tests -p "test_*.py"
       - run: npm run format:check
       - run: npm run build
       - run: npm test
       - run: npm audit --audit-level=high
+
+  container:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - name: Node
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 22
+      - name: Configure synthetic installation
+        env:
+          SETUP_NON_INTERACTIVE: 'true'
+          SETUP_URL: http://localhost:8300
+          SETUP_COMPANY: Synthetic CI
+          SETUP_NAME: Owner
+          SETUP_EMAIL: owner@example.invalid
+          SETUP_PASSWORD: synthetic-ci-password
+        run: python3 scripts/configure.py
+      - name: Build and deploy with ingress
+        run: |
+          docker network create cloudflare_ingress
+          bash scripts/deploy.sh --cloudflare
+          test ! -f .env.bootstrap
+          node tests/container-smoke.mjs
+      - name: Network isolation and restart
+        run: |
+          docker run --rm --network cloudflare_ingress node:22-bookworm-slim node -e "fetch('http://wapphub-chat:3000/api/health').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"
+          test "$(docker inspect --format '{{len .NetworkSettings.Networks}}' "$(docker compose ps -q db)")" = 1
+          docker compose -f compose.yml -f compose.ingress.yml restart app
+          docker compose -f compose.yml -f compose.ingress.yml up -d --wait --wait-timeout 180 app
+          node tests/container-smoke.mjs
+      - name: Cleanup synthetic volumes
+        if: always()
+        run: docker compose -f compose.yml -f compose.ingress.yml down -v

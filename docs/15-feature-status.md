@@ -1,6 +1,6 @@
 # Histórico de funcionalidades
 
-Versão **0.1.0**, beta para piloto. Atualizado em 01/10/2026, America/Fortaleza. “Implementado” significa código presente e verificações descritas; não implica auditoria independente ou validação com credenciais Meta reais.
+Versão **0.1.1**, beta para piloto. Atualizado em 01/10/2026, America/Fortaleza. “Implementado” significa código presente e verificações descritas; não implica auditoria independente ou validação com credenciais Meta reais.
 
 | Funcionalidade | Estado | O que funciona / limitação |
 |---|---|---|
@@ -31,13 +31,14 @@ Versão **0.1.0**, beta para piloto. Atualizado em 01/10/2026, America/Fortaleza
 | Conciliação financeira | Pendente | Sem custo “confirmado”; não usa webhook como fatura |
 | Auditoria | Implementado parcial | Ações administrativas, transferência, criação e download. Sem cópia externa/imutabilidade e sem histórico completo de todas as falhas |
 | Exportação e pesquisa de mensagens | Pendente | Busca da inbox só contato; não existe exportação |
-| Docker e operação | Parcial | Dockerfile/Compose/runbook presentes; build de imagem/restore no homelab ainda não validados |
+| Docker e operação | Parcial | Dockerfile/Compose/runbook presentes; Deploy assistido, configuração privada e CI Docker; instalação no homelab e restore ainda pendentes |
 | Segurança avançada | Pendente | MFA/reset, CSP refinada, SAST/SBOM, scanning de imagem e revisão independente |
 
 ## Entregas
 
 - **M0:** base documental publicada, sem código executável.
 - **0.1.0:** primeira beta executável, com jornada demo persistida, transferência, arquivos internos e adapter de texto Meta.
+- **0.1.1:** instalação assistida, bootstrap repetível, isolamento ingress e verificação Docker na CI.
 - **Próxima entrega:** validar instalação/piloto real, scanner e mídia Meta, melhorar concorrência/recovery e navegação de histórico.
 
 Atualizar esta matriz junto com código e CHANGELOG; não promover marco inteiro por existir parte de seu código.

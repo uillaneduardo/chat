@@ -1,6 +1,6 @@
 # Instruções para agentes e colaboradores
 
-Leia README, CONTRIBUTING, SECURITY e docs do módulo antes de alterar. O estado atual é beta 0.1.0. Consulte docs/15-feature-status.md antes de declarar um recurso implementado. Respeite o requisito do usuário acima de orientações locais.
+Leia README, CONTRIBUTING, SECURITY e docs do módulo antes de alterar. O estado atual é beta 0.1.1. Consulte docs/15-feature-status.md antes de declarar um recurso implementado. Respeite o requisito do usuário acima de orientações locais.
 
 - Documentação PT-BR; código/identificadores em inglês.
 - Preservar tenant, autorização server-side e fronteiras de histórico em todas as superfícies.

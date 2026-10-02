@@ -1,0 +1,11 @@
+services:
+  app:
+    networks:
+      default:
+      ingress:
+        aliases:
+          - wapphub-chat
+networks:
+  ingress:
+    external: true
+    name: ${CLOUDFLARE_NETWORK:-cloudflare_ingress}
