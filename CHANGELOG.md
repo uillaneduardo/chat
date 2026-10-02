@@ -14,6 +14,8 @@ Formato inspirado em Keep a Changelog. SemVer para versões executáveis.
 
 ## Unreleased
 
+- Documentada a validação pela interface no homelab: atendimento Demo, notas, busca, fechamento/reabertura, persistência, consumo, auditoria e upload em quarentena. ACL entre atendentes e scanner seguem pendentes no host.
+
 Veja [roadmap](docs/12-roadmap.md) e [matriz de funcionalidades](docs/15-feature-status.md) para itens a implementar.
 
 ## 0.1.0 — 2026-10-01

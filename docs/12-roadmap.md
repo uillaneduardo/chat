@@ -8,14 +8,14 @@
 | M3 — atendimento | Parcial | Filas/departamentos/tags, sessões formais e realtime socket |
 | M4 — mídia e arquivos | Parcial | Mídia nativa Meta, scanner na imagem, retenção/dedup e recovery completo |
 | M5 — consumo | Parcial | Franquias/faixas, ledger financeiro, reservas de orçamento e conciliação |
-| M6 — operação | Parcial com CI Docker | Validação no host, restore, carga e revisão independente |
+| M6 — operação | Parcial com CI Docker e piloto Demo | Inspeção direta do host, restore, carga e revisão independente |
 | M7 — MVP integral | Pendente | Aceite de todos os gates e piloto com conta autorizada |
 
 A beta é utilizável antes da conclusão do MVP integral: login, inbox demo persistida, transferência, arquivos e adapter de texto. Veja [histórico detalhado](15-feature-status.md) e [instalação](14-installation.md).
 
 ## Próximos incrementos
 
-1. Instalar no homelab em staging e validar conta Meta autorizada, sem campanhas.
+1. Jornada Demo validada pela interface no homelab; conferir ACL entre atendentes e validar conta Meta autorizada, sem campanhas.
 2. Configurar scanner, implementar mídia Meta e recuperação robusta disco/banco.
 3. Completar filas/tags, sessões, paginação visual e realtime com reautorização.
 4. Motor de pricing oficial, regras de gratuidade/faixas, ledger e conciliação.
