@@ -15,6 +15,7 @@ import { registerInbox } from './inbox.js';
 import { registerAdmin } from './admin.js';
 import { registerStorage } from './storage.js';
 import { registerWebhook } from './webhook.js';
+import { safeError } from './diagnostics.js';
 declare module 'fastify' {
   interface FastifyRequest {
     actor: User;
@@ -31,7 +32,16 @@ export async function createApp() {
     const e = error as Error & { statusCode?: number };
     const status = e instanceof ZodError ? 422 : (e.statusCode ?? 500);
     if (status >= 500)
-      console.error(JSON.stringify({ level: 'error', requestId: req.id, code: 'SERVER_ERROR' }));
+      console.error(
+        JSON.stringify({
+          level: 'error',
+          requestId: req.id,
+          method: req.method,
+          path: req.routeOptions.url ?? '/unmatched',
+          code: 'SERVER_ERROR',
+          ...safeError(error),
+        }),
+      );
     reply.code(status).send({
       message:
         status >= 500

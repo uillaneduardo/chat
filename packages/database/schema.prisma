@@ -50,20 +50,27 @@ model Session {
 }
 
 model Account {
-  id                 String         @id @default(uuid()) @db.VarChar(36)
-  companyId          String         @db.VarChar(36)
-  company            Company        @relation(fields: [companyId], references: [id])
-  name               String         @db.VarChar(100)
-  mode               String         @default("demo") @db.VarChar(20)
-  phoneNumberId      String?        @unique @db.VarChar(80)
-  wabaId             String?        @db.VarChar(80)
-  graphVersion       String?        @db.VarChar(20)
-  tokenEncrypted     String?        @db.Text
-  appSecretEncrypted String?        @db.Text
-  verifyHash         String?        @db.VarChar(64)
-  lastWebhook        DateTime?
-  conversations      Conversation[]
-  webhookEvents      WebhookEvent[]
+  id                      String         @id @default(uuid()) @db.VarChar(36)
+  companyId               String         @db.VarChar(36)
+  company                 Company        @relation(fields: [companyId], references: [id])
+  name                    String         @db.VarChar(100)
+  mode                    String         @default("demo") @db.VarChar(20)
+  phoneNumberId           String?        @unique @db.VarChar(80)
+  wabaId                  String?        @db.VarChar(80)
+  graphVersion            String?        @db.VarChar(20)
+  tokenEncrypted          String?        @db.Text
+  appSecretEncrypted      String?        @db.Text
+  verifyHash              String?        @db.VarChar(64)
+  lastWebhook             DateTime?
+  active                  Boolean        @default(true)
+  lastWebhookAttempt      DateTime?
+  lastWebhookSuccess      DateTime?
+  lastWebhookStatus       String?        @db.VarChar(40)
+  lastWebhookErrorCode    String?        @db.VarChar(40)
+  lastWebhookErrorMessage String?        @db.VarChar(100)
+  lastWebhookRequestId    String?        @db.VarChar(36)
+  conversations           Conversation[]
+  webhookEvents           WebhookEvent[]
 
   @@unique([companyId, id])
 }

@@ -53,18 +53,110 @@ export async function registerAdmin(app: FastifyInstance) {
   });
   app.get('/api/accounts', async (req) => {
     needManager(req.actor);
-    const rows = await db.account.findMany({ where: { companyId: req.actor.companyId } });
-    return rows.map((a) => ({
-      id: a.id,
-      name: a.name,
-      mode: a.mode,
-      phoneNumberId: a.phoneNumberId,
-      wabaId: a.wabaId,
-      graphVersion: a.graphVersion,
-      lastWebhook: a.lastWebhook,
-      hasCredentials: !!a.tokenEncrypted,
-      webhookUrl: `${config.PUBLIC_BASE_URL}/webhooks/meta/${a.id}`,
-    }));
+    const rows = await db.account.findMany({
+      where: { companyId: req.actor.companyId },
+      include: { _count: { select: { conversations: true, webhookEvents: true } } },
+    });
+    return Promise.all(
+      rows.map(async (a) => ({
+        id: a.id,
+        name: a.name,
+        mode: a.mode,
+        phoneNumberId: a.phoneNumberId,
+        wabaId: a.wabaId,
+        graphVersion: a.graphVersion,
+        lastWebhook: a.lastWebhook,
+        active: a.active,
+        canDelete:
+          !a.active &&
+          !a.lastWebhookAttempt &&
+          a._count.conversations === 0 &&
+          a._count.webhookEvents === 0 &&
+          (await db.providerStatus.count({ where: { accountId: a.id } })) === 0,
+        lastWebhookAttempt: a.lastWebhookAttempt,
+        lastWebhookSuccess: a.lastWebhookSuccess,
+        lastWebhookStatus: a.lastWebhookStatus,
+        lastWebhookErrorCode: a.lastWebhookErrorCode,
+        lastWebhookRequestId: a.lastWebhookRequestId,
+        hasCredentials: !!a.tokenEncrypted,
+        webhookUrl: `${config.PUBLIC_BASE_URL}/webhooks/meta/${a.id}`,
+      })),
+    );
+  });
+  app.post('/api/accounts/:id/diagnostics', async (req) => {
+    needAdmin(req.actor);
+    const { id } = z.object({ id: z.string().uuid() }).parse(req.params);
+    const a = await db.account.findFirst({ where: { id, companyId: req.actor.companyId } });
+    if (!a) fail(404, 'Conta não encontrada');
+    const checks = {
+      active: a.active,
+      meta: a.mode === 'meta',
+      phoneNumberId: /^\d{1,80}$/.test(a.phoneNumberId ?? ''),
+      wabaId: /^\d{1,80}$/.test(a.wabaId ?? ''),
+      graphVersion: /^v\d+\.0$/.test(a.graphVersion ?? ''),
+      accessToken: !!a.tokenEncrypted,
+      appSecret: !!a.appSecretEncrypted,
+      verifyToken: !!a.verifyHash,
+      publicHttps: config.PUBLIC_BASE_URL.startsWith('https://'),
+    };
+    await audit(req.actor.companyId, req.actor.id, 'account.diagnostics', id);
+    return {
+      checks,
+      lastWebhookStatus: a.lastWebhookStatus,
+      note: 'Verificação local; não valida token, permissões ou assinatura de inscrição na Meta.',
+    };
+  });
+  app.patch('/api/accounts/:id', async (req) => {
+    needAdmin(req.actor);
+    const { id } = z.object({ id: z.string().uuid() }).parse(req.params);
+    const b = z.object({ active: z.boolean() }).parse(req.body);
+    await db.$transaction(async (tx) => {
+      await tx.$queryRaw`SELECT id FROM Account WHERE id = ${id} AND companyId = ${req.actor.companyId} FOR UPDATE`;
+      const a = await tx.account.findFirst({ where: { id, companyId: req.actor.companyId } });
+      if (!a) fail(404, 'Conta não encontrada');
+      if (b.active && a.mode === 'demo' && config.ENABLE_DEMO !== 'true')
+        fail(403, 'Modo demo desativado');
+      await tx.account.update({ where: { id }, data: b });
+      await tx.audit.create({
+        data: {
+          companyId: req.actor.companyId,
+          actorId: req.actor.id,
+          action: 'account.status',
+          resourceId: id,
+          details: JSON.stringify(b),
+        },
+      });
+    });
+    return { ok: true };
+  });
+  app.delete('/api/accounts/:id', async (req) => {
+    needAdmin(req.actor);
+    const { id } = z.object({ id: z.string().uuid() }).parse(req.params);
+    const b = z.object({ confirm: z.literal(true) }).parse(req.body);
+    await db.$transaction(async (tx) => {
+      await tx.$queryRaw`SELECT id FROM Account WHERE id = ${id} AND companyId = ${req.actor.companyId} FOR UPDATE`;
+      const a = await tx.account.findFirst({ where: { id, companyId: req.actor.companyId } });
+      if (!a) fail(404, 'Conta não encontrada');
+      if (a.active) fail(409, 'Desative a conta antes de excluir');
+      if (
+        (await tx.conversation.count({ where: { accountId: id } })) ||
+        (await tx.webhookEvent.count({ where: { accountId: id } })) ||
+        (await tx.providerStatus.count({ where: { accountId: id } })) ||
+        a.lastWebhookAttempt
+      )
+        fail(409, 'Conta possui histórico. Mantenha desativada.');
+      await tx.account.delete({ where: { id } });
+      await tx.audit.create({
+        data: {
+          companyId: req.actor.companyId,
+          actorId: req.actor.id,
+          action: 'account.delete',
+          resourceId: id,
+          details: JSON.stringify(b),
+        },
+      });
+    });
+    return { ok: true };
   });
   const data = (b: z.infer<typeof accountSchema>) => ({
     name: b.name,

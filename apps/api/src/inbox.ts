@@ -39,7 +39,12 @@ export async function registerInbox(app: FastifyInstance) {
       where: { id: b.accountId, companyId: req.actor.companyId },
     });
     if (!a) fail(404, 'Conta não encontrada');
+    if (!a.active || (a.mode === 'demo' && config.ENABLE_DEMO !== 'true'))
+      fail(409, 'Conta indisponível');
     const c = await db.$transaction(async (tx) => {
+      await tx.$queryRaw`SELECT id FROM Account WHERE id = ${a.id} FOR UPDATE`;
+      const currentAccount = await tx.account.findUniqueOrThrow({ where: { id: a.id } });
+      if (!currentAccount.active) fail(409, 'Conta desativada');
       const contact = await tx.contact.upsert({
         where: { companyId_waId: { companyId: req.actor.companyId, waId: b.waId } },
         create: { companyId: req.actor.companyId, waId: b.waId, name: b.name },
@@ -126,6 +131,11 @@ export async function registerInbox(app: FastifyInstance) {
     const key = z.string().min(8).max(120).parse(req.headers['idempotency-key']);
     const requestHash = hash(JSON.stringify(b));
     const c = await conversationFor(u, id);
+    if (
+      b.direction !== 'note' &&
+      (!c.account.active || (c.account.mode === 'demo' && config.ENABLE_DEMO !== 'true'))
+    )
+      fail(409, 'Conta indisponível');
     if (c.status === 'closed') fail(409, 'Reabra o atendimento antes de enviar');
     if (
       b.direction === 'incoming' &&
@@ -179,6 +189,9 @@ export async function registerInbox(app: FastifyInstance) {
     }
     try {
       return await db.$transaction(async (tx) => {
+        await tx.$queryRaw`SELECT id FROM Account WHERE id = ${c.account.id} FOR UPDATE`;
+        const account = await tx.account.findUniqueOrThrow({ where: { id: c.account.id } });
+        if (b.direction !== 'note' && !account.active) fail(409, 'Conta desativada');
         // Lock conversation, then revalidate assignment after any concurrent transfer.
         const current = await tx.conversation.update({
           where: { companyId_id: { companyId: u.companyId, id } },

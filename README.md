@@ -18,6 +18,8 @@ Central de atendimento WhatsApp com múltiplos atendentes, transferência com co
 
 **Ainda pendentes:** filas/departamentos/tags, mídia nativa Meta, MFA/reset de senha, realtime por socket, retenção/dedup, orçamento com bloqueio e conciliação oficial. Scanner é opcional e não está incluído na imagem padrão; sem ele arquivos ficam em quarentena por padrão.
 
+Proposta para 0.1.2: diagnóstico persistente de webhook, diagnóstico local da integração e desativação/exclusão segura de contas, inclusive Demo. Código presente; validação MariaDB/Docker e piloto Meta real continuam gates antes de promover versão. Veja [WhatsApp](docs/05-whatsapp.md) e [atualização](docs/14-installation.md).
+
 ## Direção do produto (escopo completo)
 
 - Inbox compartilhada: conversas, filas, atribuição, tags, notas internas e encerramento.

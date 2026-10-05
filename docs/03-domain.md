@@ -44,3 +44,7 @@ Este documento é contrato conceitual; não é schema Prisma nem migração pron
 - Índices previstos: tenant/conversation/sequence, tenant/phone/received_at, tenant/period/category e estado/next_retry_at.
 - Custos são razão auditável; ajustes posteriores não sobrescrevem o snapshot histórico. Não usar preço vigente para recalcular passado silenciosamente.
 - Soft delete não concede retenção infinita. Expurgo e anonimização seguem política própria, inclusive réplicas e backups.
+
+## Contas e observação do ingresso (candidata 0.1.2)
+
+Account.active preserva histórico e controla novos atendimentos/envios. Exclusão física só para conta desativada sem domínio/eventos/tentativas; auditoria permanece independente. Account guarda última tentativa HTTP, último sucesso, status/erro sanitizado e correlation ID, sem conteúdo de webhook. Detalhes em [ADR 0005](adr/0005-account-webhook-diagnostics.md).

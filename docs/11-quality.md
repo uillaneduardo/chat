@@ -41,3 +41,11 @@ Para repetir o teste grande, forneça TEST_DATABASE_URL dedicado *_test com migr
 Docker/Compose não foram executados aqui. Meta real, ClamAV real, restauração completa e auditoria independente permanecem pendentes.
 
 Teste de navegador reproduzível: instale Chromium com `npx playwright install chromium`, forneça SMOKE_BASE_URL/SMOKE_EMAIL/SMOKE_PASSWORD de uma instalação isolada com proprietário e conta demo, e rode `npm run test:browser`. O teste cria um contato sintético e verifica que a conta é demo antes de simular mensagens. Não use banco de clientes para testes.
+
+## Proposta de diagnóstico e gestão de contas (05/10/2026)
+
+Suíte `tests/webhook.test.ts` verifica HTTP/HMAC raw, payload sintético próximo da Meta com extras/emoji, assinatura inválida não autenticada, JSON/timestamp inválido, WABA/número, duplicata de envelope/item, reuso de contato/conversa, status e rollback com erro Prisma seguro. Banco simulado não prova comportamento MariaDB.
+
+A suíte `tests/integration.test.ts` acrescenta payload realista e P2002 por conflito de sequência no MariaDB, tentativa preservada, sucesso só após commit, retry, gestão de conta por tenant/papel/CSRF, confirmação de exclusão, integridade do histórico e dispatcher sem fetch em conta inativa. Requer TEST_DATABASE_URL dedicado terminado em `_test` com migrations aplicadas; sem ele é skip explícito. Docker e piloto Meta real não foram executados neste ambiente. Não promover 0.1.2 nem afirmar causa do 500 do host sem concluir estes gates.
+
+Verificações locais desta proposta: `npm ci`, `npm run db:generate`, `npm run build` e verificador de repositório passaram; `npm test` teve 17 aprovados, zero falhas e um skip (MariaDB não configurado). `npm audit` reportou zero vulnerabilidades. A suíte HTTP também confirma sanitização do handler global 500 e ausência de query/segredos nos logs. `docker compose build` não executou: binário Docker ausente. Nenhuma migration/deploy/envio Meta aplicado no homelab; versão mantida em 0.1.1.

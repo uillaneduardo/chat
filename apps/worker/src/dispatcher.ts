@@ -18,8 +18,11 @@ export async function dispatch() {
         data: { status: 'sending' },
       });
       if (!lock.count) continue;
-      const a = m.conversation.account;
+      // Re-read immediately before dispatch; a send already in flight cannot be recalled.
+      const a = await db.account.findUniqueOrThrow({ where: { id: m.conversation.accountId } });
       try {
+        if (!a.active || (a.mode === 'demo' && config.ENABLE_DEMO !== 'true'))
+          throw Object.assign(new Error(), { safeCode: 'ACCOUNT_INACTIVE' });
         if (a.mode === 'demo') {
           await db.message.update({
             where: { id: m.id },

@@ -38,3 +38,10 @@ Webhook separado: GET/POST `/webhooks/meta/:integration_id`, autenticação chal
 ## Realtime e idempotência
 
 Evento contém event_id, tipo, resource_id, version e dados mínimos permitidos; nunca payload bruto Meta. Reconnect refaz autorização e busca incremental. Idempotency-Key é escopada por tenant/ator/operação, hash do request e TTL; mesma chave com conteúdo diferente retorna 409. Resposta de transferência não devolve histórico oculto. Downloads e exportações não contornam policy por serem rotas distintas.
+
+## Rotas executáveis candidatas à 0.1.2
+
+- `PATCH /api/accounts/:id`: `{active:boolean}`, owner/admin, tenant e CSRF.
+- `DELETE /api/accounts/:id`: `{confirm:true}`, owner/admin, tenant e CSRF; 409 para conta ativa ou histórico existente.
+- `POST /api/accounts/:id/diagnostics`: diagnóstico local seguro, owner/admin, tenant e CSRF.
+- `GET /api/accounts`: inclui active, canDelete e metadados de tentativa/sucesso/erro; nenhuma credencial salva é retornada.

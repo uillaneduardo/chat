@@ -21,6 +21,13 @@ type Account = {
   wabaId: string | null;
   graphVersion: string | null;
   lastWebhook: string | null;
+  active: boolean;
+  canDelete: boolean;
+  lastWebhookAttempt: string | null;
+  lastWebhookSuccess: string | null;
+  lastWebhookStatus: string | null;
+  lastWebhookErrorCode: string | null;
+  lastWebhookRequestId: string | null;
 };
 type Conversation = {
   id: string;
@@ -388,11 +395,13 @@ function Inbox({
             <label>
               Conta
               <select name="accountId" required>
-                {accounts.map((a) => (
-                  <option key={a.id} value={a.id}>
-                    {a.name}
-                  </option>
-                ))}
+                {accounts
+                  .filter((a) => a.active && (a.mode !== 'demo' || me.demoEnabled))
+                  .map((a) => (
+                    <option key={a.id} value={a.id}>
+                      {a.name}
+                    </option>
+                  ))}
               </select>
             </label>
             <button className="primary">Criar ou abrir conversa</button>
@@ -1015,7 +1024,12 @@ function Accounts({
   run: Run;
 }) {
   const [edit, setEdit] = useState<Account | null>(null),
-    [mode, setMode] = useState('demo');
+    [mode, setMode] = useState(me.demoEnabled ? 'demo' : 'meta'),
+    [diagnostic, setDiagnostic] = useState<{
+      id: string;
+      checks: Record<string, boolean>;
+      note: string;
+    } | null>(null);
   return (
     <div className="page">
       <p className="notice">
@@ -1031,11 +1045,107 @@ function Accounts({
             </div>
             <p>Número ID: {a.phoneNumberId ?? '—'}</p>
             <p>Credenciais: {a.hasCredentials ? 'Cadastradas' : 'Sem token'}</p>
-            <p>Último webhook: {a.lastWebhook ? date(a.lastWebhook) : 'Não recebido'}</p>
+            <p>Conta: {a.active ? 'Ativa' : 'Desativada'}</p>
+            {a.mode === 'meta' && (
+              <>
+                <p>
+                  Status do webhook:{' '}
+                  {!a.lastWebhookAttempt
+                    ? 'Nunca recebido'
+                    : a.lastWebhookStatus === 'success'
+                      ? 'Processado com sucesso'
+                      : a.lastWebhookStatus === 'attempt'
+                        ? 'Tentativa recebida'
+                        : a.lastWebhookStatus === 'untrusted'
+                          ? 'Assinatura inválida — tentativa não autenticada'
+                          : 'Recebido com erro'}
+                </p>
+                <p>Última tentativa: {a.lastWebhookAttempt ? date(a.lastWebhookAttempt) : '—'}</p>
+                <p>Último sucesso: {a.lastWebhookSuccess ? date(a.lastWebhookSuccess) : '—'}</p>
+                <p>Último erro: {a.lastWebhookErrorCode ?? '—'}</p>
+                <p>Identificador: {a.lastWebhookRequestId ?? '—'}</p>
+                {admin(me) && (
+                  <button
+                    onClick={() =>
+                      run(async () => {
+                        const d = await api<{ checks: Record<string, boolean>; note: string }>(
+                          `/accounts/${a.id}/diagnostics`,
+                          'POST',
+                          {},
+                        );
+                        setDiagnostic({ id: a.id, ...d });
+                        await refresh();
+                      })
+                    }
+                  >
+                    Diagnosticar integração
+                  </button>
+                )}
+                {diagnostic?.id === a.id && (
+                  <div role="status">
+                    {Object.entries(diagnostic.checks).map(([key, ok]) => (
+                      <p key={key}>
+                        {
+                          (
+                            {
+                              active: 'Conta ativa',
+                              meta: 'Modo Meta',
+                              phoneNumberId: 'Formato do Phone Number ID',
+                              wabaId: 'Formato do WABA ID',
+                              graphVersion: 'Formato da versão Graph',
+                              accessToken: 'Token cadastrado',
+                              appSecret: 'App Secret cadastrado',
+                              verifyToken: 'Verify Token cadastrado',
+                              publicHttps: 'URL pública HTTPS',
+                            } as Record<string, string>
+                          )[key]
+                        }
+                        : {ok ? 'OK' : 'Verificar'}
+                      </p>
+                    ))}
+                    <p>{diagnostic.note}</p>
+                  </div>
+                )}
+              </>
+            )}
             <label>
               Webhook
               <input readOnly value={a.webhookUrl} onFocus={(e) => e.target.select()} />
             </label>
+            {admin(me) && (
+              <div className="row">
+                <button
+                  disabled={!a.active && a.mode === 'demo' && !me.demoEnabled}
+                  onClick={() =>
+                    run(async () => {
+                      await api(`/accounts/${a.id}`, 'PATCH', { active: !a.active });
+                      await refresh();
+                    })
+                  }
+                >
+                  {a.active ? 'Desativar' : 'Reativar'}
+                </button>
+                {a.canDelete && (
+                  <button
+                    onClick={() => {
+                      if (
+                        !window.confirm(
+                          `Excluir a conta ${a.name}? A exclusão só será permitida se não houver histórico.`,
+                        )
+                      )
+                        return;
+                      run(async () => {
+                        await api(`/accounts/${a.id}`, 'DELETE', { confirm: true });
+                        if (edit?.id === a.id) setEdit(null);
+                        await refresh();
+                      });
+                    }}
+                  >
+                    Excluir
+                  </button>
+                )}
+              </div>
+            )}
             {admin(me) && (
               <button
                 onClick={() => {
@@ -1080,7 +1190,7 @@ function Accounts({
                   onChange={(e) => setMode(e.target.value)}
                   disabled={!!edit}
                 >
-                  <option value="demo">Demo</option>
+                  {(me.demoEnabled || edit?.mode === 'demo') && <option value="demo">Demo</option>}
                   <option value="meta">Meta Cloud API</option>
                 </select>
                 {edit && <input type="hidden" name="mode" value={mode} />}

@@ -1,6 +1,6 @@
 # Histórico de funcionalidades
 
-Versão **0.1.1**, beta para piloto. Atualizado em 02/10/2026, America/Fortaleza. “Implementado” significa código presente e verificações descritas; não implica auditoria independente ou validação com credenciais Meta reais.
+Versão **0.1.1**, beta para piloto. Atualizado em 05/10/2026, America/Fortaleza. “Implementado” significa código presente e verificações descritas; não implica auditoria independente ou validação com credenciais Meta reais.
 
 | Funcionalidade | Estado | O que funciona / limitação |
 |---|---|---|
@@ -14,11 +14,11 @@ Versão **0.1.1**, beta para piloto. Atualizado em 02/10/2026, America/Fortaleza
 | Sessões formais de atendimento | Parcial | Transferência/atribuição atual e eventos históricos; entidade/protocolo de sessão completo pendente |
 | Bloqueio de histórico | Implementado | API filtra histórico, mídia e acesso direto; antigo atendente perde acesso. Gestores possuem visão completa |
 | Atualização de tela | Implementado | Polling 3–4s; Socket.IO/WebSocket e invalidação instantânea pendentes |
-| Contas e credenciais Meta | Implementado parcial | Cadastro/edição, segredo AES-GCM, verify token hash, URL webhook e data do último evento. Exclusão/desativação de conta pela UI/API ainda não existe; conta Demo existente também não pode ser removida pela interface. |
-| Webhook | Implementado parcial | HMAC raw body, WABA/número, dedup, texto persistido antes de ACK e status tardio. Diagnóstico operacional é insuficiente: `lastWebhook` é atualizado dentro da transação de processamento e pode voltar a `null`/valor anterior em rollback, ocultando tentativas que chegaram mas foram rejeitadas. |
+| Contas e credenciais Meta | Implementado parcial | Cadastro/edição, AES-GCM, verify token hash. Proposta 0.1.2 adiciona desativação/reativação auditada e exclusão confirmada sem dependências, inclusive Demo; gates MariaDB/Docker pendentes. |
+| Webhook | Implementado parcial | HMAC raw body, WABA/número, dedup, texto persistido antes de ACK e status tardio. Proposta 0.1.2 separa tentativa HTTP/sucesso fora do rollback, registra erros sanitizados e expõe diagnóstico local. Testes HTTP com banco simulado passam; causa do 500 real e piloto continuam pendentes. |
 | Envio texto Meta | Implementado, validação externa pendente | Adapter HTTP, janela e status accepted/uncertain; testes usam payloads sintéticos, sem conta real |
 | Templates | Parcial | Valida aprovação na API e envia template sem parâmetros. Catálogo/sync e parâmetros pendentes |
-| Mídia nativa Meta | Pendente | Tipo e metadata recebidos preservados; placeholder na conversa. Download automático/envio nativo não disponíveis |
+| Mídia nativa Meta | Pendente | Tipo recebido preservado; metadata bruto não é mais armazenado em claro; placeholder na conversa. Download automático/envio nativo não disponíveis |
 | Arquivos internos grandes | Implementado | Stream, offset retomável por 8 MiB, máximo configurável até 2 GiB (testado), SHA-256 e quota reservada |
 | Retomada de upload | Parcial | Pause/continue e recuperação de offset na mesma janela; retomada após fechar/recarregar exige cliente API, sem assistente na UI |
 | Download e links | Implementado | ACL server-side, Range simples, link hash/expiração/revogação; recorte revoga shares anteriores |
@@ -40,6 +40,6 @@ Versão **0.1.1**, beta para piloto. Atualizado em 02/10/2026, America/Fortaleza
 - **0.1.0:** primeira beta executável, com jornada demo persistida, transferência, arquivos internos e adapter de texto Meta.
 - **0.1.1:** instalação assistida, bootstrap repetível, isolamento ingress e verificação Docker na CI.
 - **Validação no homelab (02/10):** jornada Demo, persistência e upload com quarentena conferidos; [evidências e limites](16-homelab-validation.md).
-- **Próxima entrega:** validar piloto Meta real; implementar diagnóstico persistente de webhook (tentativa/sucesso/erro), gestão de exclusão/desativação de contas inclusive Demo, scanner e mídia Meta; melhorar concorrência/recovery e navegação de histórico.
+- **Próxima entrega:** validar piloto Meta real; validar diagnóstico persistente e gestão de contas candidatos à 0.1.2; implementar scanner e mídia Meta; melhorar concorrência/recovery e navegação de histórico.
 
 Atualizar esta matriz junto com código e CHANGELOG; não promover marco inteiro por existir parte de seu código.

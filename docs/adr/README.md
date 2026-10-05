@@ -7,3 +7,4 @@ Usar arquivos `NNNN-titulo.md`: status, contexto, decisão, consequências e val
 - [0003 — Custos e storage](0003-usage-storage.md)
 
 - [0004 — Beta executável](0004-pilot-beta.md)
+- [0005 — Contas e diagnóstico de ingresso](0005-account-webhook-diagnostics.md)

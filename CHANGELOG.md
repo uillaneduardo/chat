@@ -12,7 +12,17 @@
 
 Formato inspirado em Keep a Changelog. SemVer para versões executáveis.
 
-## Unreleased
+## Unreleased — preparação 0.1.2 (Meta Pilot & Account Management)
+
+- Diagnóstico de POST persistido antes da transação: tentativa HTTP, sucesso, status, erro sanitizado e correlation ID. Assinatura inválida é marcada como tentativa não autenticada.
+- Logs estruturados com método, rota, tipo e código Prisma; mensagens são descrições fixas, sem input, stack, meta, tokens ou payload.
+- Limites de IDs/tipos/categoria e timestamps compatíveis com DATETIME MariaDB; validação de identidade antes da deduplicação; colisão de providerId entre contas não é tratada como duplicata legítima.
+- Payload bruto de mídia deixa de ser persistido em texto claro; tipo e placeholder continuam disponíveis, download Meta permanece pendente.
+- Gestão administrativa de contas: desativação/reativação auditada, exclusão confirmada apenas de contas desativadas sem dependências/tentativas; Demo segue a mesma política. API, inbox e dispatcher bloqueiam contas indisponíveis.
+- Diagnóstico local da integração e datas tentativa/sucesso na UI. Migration nova `20261005000000_account_diagnostics`, sem alterar migration inicial.
+- Testes HTTP com banco simulado e ampliação da suíte MariaDB para rollback P2002, histórico, autorização, CSRF, exclusão confirmada e bloqueio de dispatcher.
+- Causa concreta do 500 do homelab ainda não comprovada: o log antigo não contém exceção. Corrigido o defeito confirmado de diagnóstico perdido por rollback; não atribuir o incidente a P2002 sem nova evidência.
+- Versão permanece 0.1.1 até os gates MariaDB/Docker/piloto real. Nenhuma release/tag criada.
 
 - Documentada a validação pela interface no homelab: atendimento Demo, notas, busca, fechamento/reabertura, persistência, consumo, auditoria e upload em quarentena. ACL entre atendentes e scanner seguem pendentes no host.
 

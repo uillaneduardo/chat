@@ -79,3 +79,22 @@ A CI verifica build da imagem, migrations, bootstrap, frontend, login, rede ingr
 Pare a aplicação para copiar banco e mídia no mesmo ponto. Com o mesmo conjunto de arquivos Compose utilizado no deploy, exporte o banco com `docker compose exec -T db sh -c 'exec mariadb-dump -u root -p"$MARIADB_ROOT_PASSWORD" --single-transaction chat' > backup.sql` (a senha permanece dentro do container). Guarde o dump com permissão 600, arquive o volume de mídia e copie `.env` para armazenamento protegido separado do servidor. Reinicie a aplicação após a cópia. Não publique dumps, mídias ou chaves no Git.
 
 Teste restore em outro projeto Compose e outra origem; nunca faça o primeiro ensaio sobre dados de produção. Importe o dump, restaure mídia com proprietário UID 1000, reutilize a chave correta e valide login, downloads e credenciais antes de considerar o backup aprovado. Ensaio de restore permanece pendente.
+
+## Atualização candidata à 0.1.2 e investigação do webhook
+
+Antes de instalar esta proposta, validar migration e suíte MariaDB em banco dedicado `*_test`, build Docker e smoke em instalação isolada. Código continua 0.1.1 até os gates; alterações locais precisam estar publicadas/revisadas no ref usado pelo servidor. Não criar tag por este runbook.
+
+Depois do backup coordenado descrito acima, no checkout do homelab:
+
+```bash
+git pull --ff-only
+bash scripts/deploy.sh --cloudflare
+curl -fsS http://127.0.0.1:8300/api/health
+docker compose -f compose.yml -f compose.ingress.yml logs --since=10m --follow app
+```
+
+O script gera imagem, para app/worker, aplica migrations incluindo `20261005000000_account_diagnostics` e verifica instalação antes de subir app. Não editar migration histórica, não apagar volumes, não executar `down -v`. A migration é aditiva e deriva último sucesso do lastWebhook anterior. Downgrade do código não remove colunas; restore segue backup coordenado, nunca rollback SQL destrutivo improvisado.
+
+Na página WhatsApp: conferir conta ativa, IDs exatos, credenciais presentes e **Diagnosticar integração**. GET challenge confirma somente verificação. Com inscrição da WABA/campo messages conferida no portal Meta, enviar uma única mensagem sintética ao número de teste. Aguardar `WEBHOOK_SUCCESS`, conferir último sucesso e conversa não atribuída na Inbox de gestor. Identificar rejeição pelo código e correlation ID na UI/log; nunca copiar payload, segredo ou dump para issue. Log antigo `{SERVER_ERROR}` não permite inferir a exceção original.
+
+Para tirar Demo das novas conversas: WhatsApp → Demo → **Desativar**. Histórico permanece visível conforme ACL. **Excluir** aparece apenas em conta desativada sem dependências/tentativas e exige confirmação explícita. Com histórico, manter desativada. `ENABLE_DEMO=false` também impede novo cadastro/uso/reativação Demo, sem apagar dados existentes.

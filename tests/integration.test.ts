@@ -460,6 +460,158 @@ test(
       } finally {
         globalThis.fetch = originalFetch;
       }
+      // Real MariaDB webhook fixture: rollback must not erase the HTTP attempt.
+      const realEnvelope = structuredClone(envelope);
+      const value = realEnvelope.entry[0].changes[0].value;
+      Object.assign(value.metadata, { display_phone_number: '15550000000' });
+      Object.assign(value, {
+        messaging_product: 'whatsapp',
+        contacts: [{ wa_id: '15550000001', profile: { name: 'Sintético 🧪' } }],
+      });
+      value.messages[0].from = '15550000001';
+      value.messages[0].id = 'wamid.synthetic.realistic';
+      const postWebhook = async (body: unknown) => {
+        const rawBody = JSON.stringify(body);
+        return app.inject({
+          method: 'POST',
+          url: `/webhooks/meta/${meta.id}`,
+          payload: rawBody,
+          headers: {
+            'content-type': 'application/json',
+            'x-hub-signature-256':
+              'sha256=' + createHmac('sha256', secret).update(rawBody).digest('hex'),
+          },
+        });
+      };
+      assert.equal((await postWebhook(realEnvelope)).statusCode, 200);
+      const realConversation = await db.conversation.findFirstOrThrow({
+        where: { accountId: meta.id, contact: { waId: '15550000001' } },
+      });
+      // Force the actual unique(sequence) failure after contact/conversation upserts.
+      await db.conversation.update({
+        where: { id: realConversation.id },
+        data: { lastSequence: 0 },
+      });
+      value.messages[0].id = 'wamid.synthetic.rollback';
+      const priorSuccess = (await db.account.findUniqueOrThrow({ where: { id: meta.id } }))
+        .lastWebhookSuccess;
+      assert.equal((await postWebhook(realEnvelope)).statusCode, 500);
+      const failedAccount = await db.account.findUniqueOrThrow({ where: { id: meta.id } });
+      assert.ok(failedAccount.lastWebhookAttempt);
+      assert.equal(failedAccount.lastWebhookErrorCode, 'P2002');
+      assert.deepEqual(failedAccount.lastWebhookSuccess, priorSuccess);
+      assert.equal(await db.message.count({ where: { providerId: value.messages[0].id } }), 0);
+      await db.conversation.update({
+        where: { id: realConversation.id },
+        data: { lastSequence: 1 },
+      });
+      assert.equal((await postWebhook(realEnvelope)).statusCode, 200);
+      assert.equal((await postWebhook(realEnvelope)).statusCode, 200);
+      assert.equal(await db.message.count({ where: { providerId: value.messages[0].id } }), 1);
+      // Administrative scope, confirmation and history preservation.
+      assert.equal(
+        (await call('PATCH', `/api/accounts/${account.id}`, one, { active: false })).statusCode,
+        403,
+      );
+      assert.equal(
+        (await call('PATCH', `/api/accounts/${account.id}`, other, { active: false })).statusCode,
+        404,
+      );
+      assert.equal(
+        (
+          await call(
+            'PATCH',
+            `/api/accounts/${account.id}`,
+            { cookie: boss.cookie },
+            { active: false },
+          )
+        ).statusCode,
+        403,
+      );
+      assert.equal(
+        (await call('PATCH', `/api/accounts/${account.id}`, boss, { active: false })).statusCode,
+        200,
+      );
+      assert.equal(
+        (
+          await call('POST', '/api/conversations', boss, {
+            accountId: account.id,
+            name: 'Blocked',
+            waId: '15550000002',
+          })
+        ).statusCode,
+        409,
+      );
+      assert.equal(
+        (await call('DELETE', `/api/accounts/${account.id}`, boss, { confirm: true })).statusCode,
+        409,
+      );
+      assert.ok(await db.conversation.findUnique({ where: { id } }));
+      const empty = await db.account.create({
+        data: { companyId: c1.id, name: 'Empty demo', mode: 'demo', active: false },
+      });
+      assert.equal((await call('DELETE', `/api/accounts/${empty.id}`, boss, {})).statusCode, 422);
+      assert.equal(
+        (await call('DELETE', `/api/accounts/${empty.id}`, boss, { confirm: true })).statusCode,
+        200,
+      );
+      assert.equal(await db.account.count({ where: { id: empty.id } }), 0);
+      assert.equal(
+        await db.audit.count({ where: { resourceId: empty.id, action: 'account.delete' } }),
+        1,
+      );
+      const diagnosis = await call('POST', `/api/accounts/${meta.id}/diagnostics`, boss, {});
+      assert.equal(diagnosis.statusCode, 200);
+      assert.ok(!diagnosis.body.includes('synthetic-access-token'));
+      assert.equal(
+        (await call('PATCH', `/api/accounts/${meta.id}`, boss, { active: false })).statusCode,
+        200,
+      );
+      assert.equal((await postWebhook(realEnvelope)).statusCode, 403);
+      // Queue dispatch must not call Meta once the account is inactive.
+      const blocked = await db.message.create({
+        data: {
+          companyId: c1.id,
+          conversationId: realConversation.id,
+          sequence: 3,
+          direction: 'outgoing',
+          body: 'Blocked synthetic',
+          status: 'queued',
+        },
+      });
+      const fetchBeforeBlocked = globalThis.fetch;
+      let blockedFetches = 0;
+      try {
+        globalThis.fetch = (async () => {
+          blockedFetches++;
+          throw new Error('No external call allowed');
+        }) as typeof fetch;
+        await dispatch();
+      } finally {
+        globalThis.fetch = fetchBeforeBlocked;
+      }
+      assert.equal(blockedFetches, 0);
+      assert.equal(
+        (await db.message.findUniqueOrThrow({ where: { id: blocked.id } })).errorCode,
+        'ACCOUNT_INACTIVE',
+      );
+      const { config } = await import('../packages/config/src/index.js');
+      const oldDemoEnabled = config.ENABLE_DEMO;
+      try {
+        config.ENABLE_DEMO = 'false';
+        assert.equal(
+          (await call('POST', '/api/accounts', boss, { name: 'Forbidden demo', mode: 'demo' }))
+            .statusCode,
+          403,
+        );
+        assert.equal(
+          (await call('PATCH', `/api/accounts/${account.id}`, boss, { active: true })).statusCode,
+          403,
+        );
+        assert.ok(await db.account.findUnique({ where: { id: account.id } }));
+      } finally {
+        config.ENABLE_DEMO = oldDemoEnabled;
+      }
       // Atomic quota reservations: only one concurrent request fits.
       await db.company.update({ where: { id: c1.id }, data: { quotaBytes: 32n } });
       const reservations = await Promise.all(
