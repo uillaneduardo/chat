@@ -15,7 +15,13 @@ A beta é utilizável antes da conclusão do MVP integral: login, inbox demo per
 
 ## Próximos incrementos
 
-1. Jornada Demo validada pela interface no homelab; conferir ACL entre atendentes e validar conta Meta autorizada, sem campanhas.
+1. **Piloto Meta real e gestão de contas (prioridade imediata):**
+   - validar recebimento e envio com o número de teste da Meta;
+   - adicionar diagnóstico de webhook que diferencie tentativa recebida, rejeição por assinatura, payload inválido, WABA divergente, Phone Number ID divergente e processamento concluído;
+   - registrar `lastWebhookAttempt`, `lastWebhookSuccess` e último erro sanitizado fora da transação principal, para que uma falha de processamento não apague a evidência de que a Meta alcançou o endpoint;
+   - permitir desativar e excluir contas WhatsApp pela UI/API, incluindo a conta Demo, com confirmação explícita, auditoria e regras de integridade para conversas/eventos existentes;
+   - quando `ENABLE_DEMO=false`, não criar nem exibir automaticamente conta Demo nova; uma conta Demo existente deve poder ser removida administrativamente;
+   - acrescentar ação de teste/diagnóstico da conta Meta sem revelar token ou App Secret.
 2. Configurar scanner, implementar mídia Meta e recuperação robusta disco/banco.
 3. Completar filas/tags, sessões, paginação visual e realtime com reautorização.
 4. Motor de pricing oficial, regras de gratuidade/faixas, ledger e conciliação.
